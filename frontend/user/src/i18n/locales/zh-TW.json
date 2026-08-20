@@ -1,6 +1,6 @@
 {
   "common": {
-    "siteName": "Dujiao-Next",
+    "siteName": "五條悟AI源頭站",
     "loading": "載入中...",
     "error": "錯誤",
     "success": "成功",
@@ -96,7 +96,7 @@
     "label": "購買流程進度"
   },
   "footer": {
-    "description": "專業的線上工作室，為您提供優質的產品和服務。",
+    "description": "專注 AI 工具、訂閱與數位資源，穩定交付，隨買隨用。",
     "quickLinks": "快速連結",
     "contact": "聯絡我們",
     "rights": "保留所有權利",
@@ -112,10 +112,10 @@
   },
   "home": {
     "hero": {
-      "title": "Dujiao-Next · D&N",
-      "subtitle": "專業的產品與服務提供商",
+      "title": "五條悟AI源頭站",
+      "subtitle": "精選 AI 工具、訂閱與數位資源，一站直達",
       "cta": "瀏覽商品",
-      "badge": "新一代數位商店"
+      "badge": "AI 數位資源站"
     },
     "stats": {
       "activeUsers": "活躍用戶",
@@ -125,7 +125,7 @@
     },
     "featured": {
       "title": "精選商品",
-      "description": "探索我們精心挑選的優質數位資產系列。",
+      "description": "探索經過篩選的 AI 工具、訂閱服務與數位資源。",
       "empty": "暫無商品",
       "viewAll": "查看全部商品"
     },

@@ -1,6 +1,6 @@
 {
   "common": {
-    "siteName": "Dujiao-Next",
+    "siteName": "Gojo AI Source Station",
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
@@ -96,7 +96,7 @@
     "label": "Checkout progress"
   },
   "footer": {
-    "description": "Professional online studio providing quality products and services.",
+    "description": "Curated AI tools, subscriptions, and digital resources with reliable delivery.",
     "quickLinks": "Quick Links",
     "contact": "Contact Us",
     "rights": "All rights reserved",
@@ -112,10 +112,10 @@
   },
   "home": {
     "hero": {
-      "title": "Dujiao-Next",
-      "subtitle": "Professional Products and Services Provider",
+      "title": "Gojo AI Source Station",
+      "subtitle": "Curated AI tools, subscriptions, and digital resources",
       "cta": "Browse Products",
-      "badge": "Next Gen Digital Store"
+      "badge": "AI Digital Resource Store"
     },
     "stats": {
       "activeUsers": "Active Users",
@@ -125,7 +125,7 @@
     },
     "featured": {
       "title": "Featured Products",
-      "description": "Discover our premium collection of digital assets, curated for excellence.",
+      "description": "Explore curated AI tools, subscriptions, and digital resources.",
       "empty": "No products available",
       "viewAll": "View All Products"
     },

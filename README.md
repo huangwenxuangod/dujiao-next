@@ -227,6 +227,22 @@ Or with Docker:
 docker run -d -p 8080:8080 -v $PWD/config.yml:/app/config.yml:ro dujiaonext/dujiao-next:latest
 ```
 
+### GitHub Actions + Docker deployment
+
+This repository also includes a production image workflow at
+`.github/workflows/docker-deploy.yml`. A push to `main` builds the existing
+single-image `Dockerfile` and publishes both the commit SHA tag and `latest` to
+`ghcr.io/huangwenxuangod/dujiao-next`. It uses only GitHub's built-in
+`GITHUB_TOKEN`; no custom repository secrets are required.
+
+On the target host, create an application directory containing `config.yml`,
+`.env`, and the checked-in `deploy/` directory. Keep `db/`, `uploads/`, and
+`logs/` beside them; they are mounted as persistent data. Run
+`deploy/deploy.sh` on the target host after each published image. For a private
+GHCR package, provide `GHCR_USERNAME` and `GHCR_TOKEN` only in the server's
+local environment; public packages need neither. The default container binding
+is loopback port `18083` and can be changed with `APP_PORT` in `.env`.
+
 ## Quick Start (Develop)
 
 Run the backend and the two frontends separately for hot reload:

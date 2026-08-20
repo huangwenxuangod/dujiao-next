@@ -78,11 +78,11 @@
 }
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "PingFang SC", "Microsoft YaHei", Inter, system-ui, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  --ui-bg-page: #f5f5f7;
+  --ui-bg-page: #f3f5f8;
   --ui-bg-elevated: #ffffff;
   --ui-bg-soft: #f2f2f4;
   --ui-bg-muted: #ececf0;
@@ -94,9 +94,9 @@
   --ui-text-on-accent: #ffffff;
   --ui-border: rgba(0, 0, 0, 0.12);
   --ui-border-strong: rgba(0, 0, 0, 0.2);
-  --ui-accent: #0071e3;
-  --ui-accent-hover: #0067d2;
-  --ui-accent-soft: rgba(0, 113, 227, 0.14);
+  --ui-accent: #5f9ee8;
+  --ui-accent-hover: #4386d4;
+  --ui-accent-soft: rgba(95, 158, 232, 0.16);
   --ui-success: #2f8f6f;
   --ui-success-soft: rgba(47, 143, 111, 0.14);
   --ui-warning: #b06b00;
@@ -279,7 +279,7 @@ html[data-telegram-mini-app="true"] body {
   }
 
   .theme-wordmark {
-    @apply inline-flex items-center rounded-xl border px-3.5 sm:px-4;
+    @apply inline-flex items-center rounded-full border px-3.5 sm:px-4;
     min-height: 2.5rem;
     max-width: min(56vw, 20rem);
     background-color: color-mix(in oklab, var(--ui-bg-elevated) 90%, var(--ui-accent-soft) 10%);
@@ -304,7 +304,7 @@ html[data-telegram-mini-app="true"] body {
     @apply block;
     font-size: 1rem;
     font-weight: 700;
-    letter-spacing: -0.018em;
+    letter-spacing: 0;
     line-height: 1;
     white-space: nowrap;
     overflow: hidden;
