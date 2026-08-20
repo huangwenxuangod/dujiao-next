@@ -181,7 +181,7 @@ const brandLogo = computed(() => {
 const brandDescription = computed(() => {
   const desc = appStore.config?.brand?.site_description
   if (desc && typeof desc === 'object') {
-    const val = (desc as Record<string, string>)[appStore.locale] || (desc as Record<string, string>)['zh-CN'] || ''
+    const val = (desc as Record<string, string>)[appStore.locale] || (desc as Record<string, string>)['en-US'] || (desc as Record<string, string>)['zh-CN'] || ''
     return typeof val === 'string' ? val.trim() : ''
   }
   return ''
@@ -220,6 +220,7 @@ const languages = [
   { code: 'zh-CN', name: '简体中文' },
   { code: 'zh-TW', name: '繁體中文' },
   { code: 'en-US', name: 'English' },
+  { code: 'ru-RU', name: 'Русский' },
 ]
 
 const changeLanguage = (code: string) => {

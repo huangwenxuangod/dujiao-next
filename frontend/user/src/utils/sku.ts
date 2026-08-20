@@ -5,7 +5,7 @@ export const normalizeSkuId = (value: unknown) => {
   return integerValue > 0 ? integerValue : 0
 }
 
-const SUPPORTED_LOCALES = ['zh-CN', 'zh-TW', 'en-US'] as const
+const SUPPORTED_LOCALES = ['zh-CN', 'zh-TW', 'en-US', 'ru-RU'] as const
 
 const normalizeText = (value: unknown) => String(value ?? '').trim()
 
@@ -21,10 +21,13 @@ const localeFallbacks = (locale?: string) => {
     case 'en':
     case 'en-us':
       return ['en-US', 'zh-CN', 'zh-TW']
+    case 'ru':
+    case 'ru-ru':
+      return ['ru-RU', 'en-US', 'zh-CN', 'zh-TW']
     case 'zh':
     case 'zh-cn':
     default:
-      return ['zh-CN', 'zh-TW', 'en-US']
+      return ['zh-CN', 'zh-TW', 'en-US', 'ru-RU']
   }
 }
 

@@ -414,7 +414,7 @@ export function useCheckout() {
   const resolveLocalizedText = (jsonData?: Record<string, string>, fallback = '') => {
     if (!jsonData) return fallback
     const locale = appStore.locale
-    return jsonData[locale] || jsonData['zh-CN'] || jsonData['en-US'] || fallback
+    return jsonData[locale] || jsonData['en-US'] || jsonData['zh-CN'] || fallback
   }
 
   const getManualFieldLabel = (field: ManualFormField) => {

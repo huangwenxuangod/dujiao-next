@@ -240,12 +240,15 @@ const languages = [
   { code: 'zh-CN', name: '简体中文' },
   { code: 'zh-TW', name: '繁體中文' },
   { code: 'en-US', name: 'English' },
+  { code: 'ru-RU', name: 'Русский' },
 ]
 
 const currentLocale = computed(() => {
   const lang = languages.find(l => l.code === appStore.locale)
   if (!lang) return 'CN'
-  return lang.code === 'en-US' ? 'EN' : (lang.code === 'zh-CN' ? '简' : '繁')
+  if (lang.code === 'en-US') return 'EN'
+  if (lang.code === 'ru-RU') return 'RU'
+  return lang.code === 'zh-CN' ? '简' : '繁'
 })
 
 const cartCount = computed(() => cartStore.totalItems)

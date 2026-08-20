@@ -1208,7 +1208,7 @@ export function usePayment() {
   const getLocalizedText = (jsonData: any) => {
     if (!jsonData) return ''
     const locale = appStore.locale
-    return jsonData[locale] || jsonData['zh-CN'] || jsonData['en-US'] || ''
+    return jsonData[locale] || jsonData['en-US'] || jsonData['zh-CN'] || ''
   }
 
   const orderItemSkuText = (item: any) => {

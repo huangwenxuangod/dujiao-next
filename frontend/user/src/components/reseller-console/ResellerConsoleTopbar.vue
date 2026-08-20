@@ -218,11 +218,13 @@ const languages = [
   { code: 'zh-CN', name: '简体中文' },
   { code: 'zh-TW', name: '繁體中文' },
   { code: 'en-US', name: 'English' },
+  { code: 'ru-RU', name: 'Русский' },
 ]
 
 const currentLocaleLabel = computed(() => {
   if (appStore.locale === 'en-US') return 'EN'
   if (appStore.locale === 'zh-TW') return '繁'
+  if (appStore.locale === 'ru-RU') return 'RU'
   return '简'
 })
 

@@ -26,7 +26,7 @@ export function useAbout() {
 
     const record = raw as Record<string, unknown>
     const lang = String(locale.value || appStore.locale || 'zh-CN')
-    const candidates = [record[lang], record['zh-CN'], record['zh-TW'], record['en-US']]
+    const candidates = [record[lang], record['en-US'], record['zh-CN'], record['zh-TW']]
 
     for (const candidate of candidates) {
       if (typeof candidate === 'string' && candidate.trim() !== '') {

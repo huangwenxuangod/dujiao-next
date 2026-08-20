@@ -136,7 +136,7 @@ const brandSiteName = computed(() => {
 const brandDescription = computed(() => {
   const desc = config.value?.brand?.site_description
   if (desc && typeof desc === 'object') {
-    const val = desc[appStore.locale] || desc['zh-CN'] || ''
+    const val = desc[appStore.locale] || desc['en-US'] || desc['zh-CN'] || ''
     return typeof val === 'string' ? val.trim() : ''
   }
   return ''

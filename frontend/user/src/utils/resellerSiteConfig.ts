@@ -1,12 +1,13 @@
-export type ResellerLocale = 'zh-CN' | 'zh-TW' | 'en-US'
+export type ResellerLocale = 'zh-CN' | 'zh-TW' | 'en-US' | 'ru-RU'
 export type LocalizedText = Record<ResellerLocale, string>
 
-export const resellerLocales: ResellerLocale[] = ['zh-CN', 'zh-TW', 'en-US']
+export const resellerLocales: ResellerLocale[] = ['zh-CN', 'zh-TW', 'en-US', 'ru-RU']
 
 export const blankLocalizedText = (): LocalizedText => ({
     'zh-CN': '',
     'zh-TW': '',
     'en-US': '',
+    'ru-RU': '',
 })
 
 export const getLocalizedText = (
@@ -16,9 +17,9 @@ export const getLocalizedText = (
     if (!value) return ''
     const candidates = [
         value[locale as keyof typeof value],
+        value['en-US' as keyof typeof value],
         value['zh-CN' as keyof typeof value],
         value['zh-TW' as keyof typeof value],
-        value['en-US' as keyof typeof value],
         ...Object.values(value),
     ]
     for (const item of candidates) {
@@ -40,6 +41,7 @@ export const normalizeLocalizedTextForForm = (
     'zh-CN': String(value?.['zh-CN'] || ''),
     'zh-TW': String(value?.['zh-TW'] || ''),
     'en-US': String(value?.['en-US'] || ''),
+    'ru-RU': String(value?.['ru-RU'] || ''),
 })
 
 export const normalizeFooterLinksForForm = (

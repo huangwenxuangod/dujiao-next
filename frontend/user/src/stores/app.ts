@@ -4,7 +4,7 @@ import { configAPI } from '../api'
 import { applyCustomScripts } from '../utils/customScripts'
 import { getImageUrl } from '../utils/image'
 import { getLocalizedText } from '../utils/resellerSiteConfig'
-import { detectLocale, setI18nLocale } from '../i18n'
+import { detectLocale, setI18nLocale, supportedLocales, type SupportedLocale } from '../i18n'
 import { useHead } from '@unhead/vue'
 
 export const useAppStore = defineStore('app', () => {
@@ -26,7 +26,8 @@ export const useAppStore = defineStore('app', () => {
 
     // 设置语言：同时驱动 vue-i18n（内部按需加载语言包）
     const setLocale = (newLocale: string) => {
-        locale.value = newLocale
+        if (!supportedLocales.includes(newLocale as SupportedLocale)) return
+        locale.value = newLocale as SupportedLocale
         localStorage.setItem('locale', newLocale)
         void setI18nLocale(newLocale)
     }

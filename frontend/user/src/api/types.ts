@@ -250,6 +250,7 @@ export interface ResellerLocalizedText {
     'zh-CN': string
     'zh-TW': string
     'en-US': string
+    'ru-RU': string
 }
 
 export interface ResellerSiteConfigPayload {
