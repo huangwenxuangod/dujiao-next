@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-APP_DIR="${APP_DIR:-/data/wwwroot/dujiao-next}"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+APP_DIR="${APP_DIR:-$(cd -- "$SCRIPT_DIR/.." && pwd)}"
+COMPOSE_FILE="$APP_DIR/deploy/docker-compose.yml"
 IMAGE_NAME="${IMAGE_NAME:-ghcr.io/huangwenxuangod/dujiao-next}"
 IMAGE_TAG="${IMAGE_TAG:-latest}"
 GHCR_USERNAME="${GHCR_USERNAME:-}"
@@ -18,8 +20,8 @@ export IMAGE_NAME IMAGE_TAG
 if [[ -n "$GHCR_USERNAME" && -n "$GHCR_TOKEN" ]]; then
   printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin >/dev/null
 fi
-docker compose -f deploy/docker-compose.yml pull app
-docker compose -f deploy/docker-compose.yml up -d --remove-orphans app
+docker compose -f "$COMPOSE_FILE" pull app
+docker compose -f "$COMPOSE_FILE" up -d --remove-orphans app
 
 for attempt in $(seq 1 30); do
   state="$(docker inspect --format '{{.State.Health.Status}}' dujiao-next 2>/dev/null || true)"
@@ -28,13 +30,13 @@ for attempt in $(seq 1 30); do
     exit 0
   fi
   if [[ "$state" == "unhealthy" || "$state" == "" ]]; then
-    docker compose -f deploy/docker-compose.yml ps
-    docker compose -f deploy/docker-compose.yml logs --tail=100 app
+    docker compose -f "$COMPOSE_FILE" ps
+    docker compose -f "$COMPOSE_FILE" logs --tail=100 app
     exit 1
   fi
   sleep 2
 done
 
-docker compose -f deploy/docker-compose.yml ps
-docker compose -f deploy/docker-compose.yml logs --tail=100 app
+docker compose -f "$COMPOSE_FILE" ps
+docker compose -f "$COMPOSE_FILE" logs --tail=100 app
 exit 1

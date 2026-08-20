@@ -237,8 +237,10 @@ single-image `Dockerfile` and publishes both the commit SHA tag and `latest` to
 
 On the target host, create an application directory containing `config.yml`,
 `.env`, and the checked-in `deploy/` directory. Keep `db/`, `uploads/`, and
-`logs/` beside them; they are mounted as persistent data. Run
-`deploy/deploy.sh` on the target host after each published image. For a private
+`logs/` beside them; they are mounted as persistent data. Run `./deploy.sh`
+from the repository root, or `./deploy.sh` from the `deploy/` directory, after
+each published image. The script resolves the repository directory from its
+own location; set `APP_DIR` only when the files live elsewhere. For a private
 GHCR package, provide `GHCR_USERNAME` and `GHCR_TOKEN` only in the server's
 local environment; public packages need neither. The default container binding
 is loopback port `18083` and can be changed with `APP_PORT` in `.env`.
