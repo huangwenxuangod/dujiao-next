@@ -99,8 +99,21 @@ const (
 // UserSSRRenderer 只负责公开页面的首屏 SEO 外壳；Vue 仍负责后续交互和数据刷新。
 type UserSSRRenderer func(*http.Request, []byte) []byte
 
+type SSRPageData struct {
+	Title       string
+	Description string
+	Image       string
+	Type        string
+}
+
+type SSRDataLoader func(*http.Request) (SSRPageData, bool)
+
 // NewUserSSRRenderer 创建无状态 SSR 渲染器。它不访问数据库，不改变 API 和 SPA 行为。
 func NewUserSSRRenderer(chinaOrigin, overseasOrigin string) UserSSRRenderer {
+	return NewUserSSRRendererWithData(chinaOrigin, overseasOrigin, nil)
+}
+
+func NewUserSSRRendererWithData(chinaOrigin, overseasOrigin string, loader SSRDataLoader) UserSSRRenderer {
 	chinaOrigin = strings.TrimRight(strings.TrimSpace(chinaOrigin), "/")
 	overseasOrigin = strings.TrimRight(strings.TrimSpace(overseasOrigin), "/")
 	return func(req *http.Request, raw []byte) []byte {
@@ -115,6 +128,13 @@ func NewUserSSRRenderer(chinaOrigin, overseasOrigin string) UserSSRRenderer {
 		if origin == "" {
 			return raw
 		}
+		data, ok := SSRPageData{}, false
+		if loader != nil {
+			data, ok = loader(req)
+		}
+		if ok && strings.TrimSpace(data.Title) != "" {
+			title = data.Title + " | " + title
+		}
 		canonical := origin + req.URL.Path
 		if req.URL.RawQuery != "" {
 			canonical += "?" + req.URL.RawQuery
@@ -122,21 +142,29 @@ func NewUserSSRRenderer(chinaOrigin, overseasOrigin string) UserSSRRenderer {
 		replacements := []struct{ old, new string }{
 			{"<html lang=\"zh-CN\">", `<html lang="` + locale + `">`},
 			{"<html lang=\"en\">", `<html lang="` + locale + `">`},
-			{"<title>五条悟AI源头站 | AI 数字商品代充平台</title>", "<title>" + title + "</title>"},
+			{"<title>五条悟AI源头站 | AI 数字商品代充平台</title>", "<title>" + htmlEscape(title) + "</title>"},
 		}
 		body := string(raw)
 		for _, item := range replacements {
 			body = strings.Replace(body, item.old, item.new, 1)
 		}
 		if !strings.Contains(body, `rel="canonical"`) {
-			seo := `<link rel="canonical" href="` + htmlEscape(canonical) + `">` +
+			seo := `<meta name="description" content="` + htmlEscape(data.Description) + `">` +
+				`<link rel="canonical" href="` + htmlEscape(canonical) + `">` +
 				`<link rel="alternate" hreflang="zh-CN" href="` + htmlEscape(chinaOrigin+req.URL.Path) + `">` +
 				`<link rel="alternate" hreflang="en" href="` + htmlEscape(overseasOrigin+req.URL.Path) + `">` +
-				`<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","url":"` + htmlEscape(origin) + `"}</script>`
+				`<script type="application/ld+json">{"@context":"https://schema.org","@type":"` + htmlEscape(firstNonEmpty(data.Type, "WebSite")) + `","url":"` + htmlEscape(canonical) + `","name":"` + htmlEscape(data.Title) + `","description":"` + htmlEscape(data.Description) + `"}</script>`
 			body = strings.Replace(body, "</head>", seo+"</head>", 1)
 		}
 		return []byte(body)
 	}
+}
+
+func firstNonEmpty(value, fallback string) string {
+	if strings.TrimSpace(value) == "" {
+		return fallback
+	}
+	return value
 }
 
 func isPublicSSRPath(p string) bool {

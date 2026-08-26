@@ -248,12 +248,58 @@ func SetupRouter(cfg *config.Config, c *container.Container) *gin.Engine {
 		if err := web.RegisterAdmin(r, cfg.Web.AdminPath, web.AdminFS()); err != nil {
 			log.Sugar().Fatalf("注册 admin SPA 失败: %v", err)
 		}
-		if err := web.RegisterUserWithSSR(r, web.UserFS(), web.NewUserSSRRenderer(cfg.Site.ChinaURL, cfg.Site.OverseasURL)); err != nil {
+		if err := web.RegisterUserWithSSR(r, web.UserFS(), web.NewUserSSRRendererWithData(cfg.Site.ChinaURL, cfg.Site.OverseasURL, newPublicSSRLoader(c))); err != nil {
 			log.Sugar().Fatalf("注册 user SPA 失败: %v", err)
 		}
 	}
 
 	return r
+}
+
+func newPublicSSRLoader(c *container.Container) web.SSRDataLoader {
+	return func(req *http.Request) (web.SSRPageData, bool) {
+		if req == nil {
+			return web.SSRPageData{}, false
+		}
+		path := strings.Trim(req.URL.Path, "/")
+		locale := "en-US"
+		if strings.EqualFold(strings.Split(req.Host, ":")[0], "cn.huangwenxuangod.xyz") {
+			locale = "zh-CN"
+		}
+		if strings.HasPrefix(path, "products/") && c != nil && c.ProductReadService != nil {
+			product, err := c.ProductReadService.GetPublicBySlug(strings.TrimPrefix(path, "products/"))
+			if err != nil || product == nil {
+				return web.SSRPageData{}, false
+			}
+			return web.SSRPageData{Title: localizedJSON(product.TitleJSON, locale), Description: localizedJSON(product.DescriptionJSON, locale), Image: firstImage(product.Images), Type: "Product"}, true
+		}
+		if strings.HasPrefix(path, "blog/") && c != nil && c.ContentPostService != nil {
+			post, err := c.ContentPostService.GetPublicBySlug(req.Context(), strings.TrimPrefix(path, "blog/"))
+			if err != nil || post == nil {
+				return web.SSRPageData{}, false
+			}
+			return web.SSRPageData{Title: localizedJSON(post.TitleJSON, locale), Description: localizedJSON(post.SummaryJSON, locale), Image: post.Thumbnail, Type: "Article"}, true
+		}
+		return web.SSRPageData{}, false
+	}
+}
+
+func localizedJSON(values map[string]interface{}, locale string) string {
+	for _, key := range []string{locale, "en-US", "zh-CN"} {
+		if value, ok := values[key]; ok {
+			if text, ok := value.(string); ok && strings.TrimSpace(text) != "" {
+				return strings.TrimSpace(text)
+			}
+		}
+	}
+	return ""
+}
+
+func firstImage(values []string) string {
+	if len(values) == 0 {
+		return ""
+	}
+	return values[0]
 }
 
 func configureTrustedProxies(engine *gin.Engine, trustedProxies []string) error {
