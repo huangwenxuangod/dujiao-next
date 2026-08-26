@@ -5,6 +5,7 @@ import { useTelegramMiniAppStore } from '../stores/telegramMiniApp'
 import { captureAffiliateFromRoute } from '../utils/affiliate'
 import { templateView } from '../templates/registry'
 import { GOOGLE_REDIRECT_FRONTEND_CALLBACK_PATH } from '../utils/googleRedirect'
+import { setI18nLocale } from '../i18n'
 
 type RouteComponentLoader = () => Promise<unknown>
 
@@ -115,11 +116,13 @@ const router = createRouter({
         {
             path: '/',
             name: 'home',
+            alias: ['/ru/'],
             component: templateView('Home', homeViewLoader),
         },
         {
             path: '/products',
             name: 'products',
+            alias: ['/ru/products'],
             component: () => {
                 const appStore = useAppStore()
                 return appStore.config?.template_mode === 'list'
@@ -130,6 +133,7 @@ const router = createRouter({
         {
             path: '/categories/:slug',
             name: 'category-products',
+            alias: ['/ru/categories/:slug'],
             component: () => {
                 const appStore = useAppStore()
                 return appStore.config?.template_mode === 'list'
@@ -140,6 +144,7 @@ const router = createRouter({
         {
             path: '/products/:slug',
             name: 'product-detail',
+            alias: ['/ru/products/:slug'],
             component: templateView('ProductDetail', productDetailViewLoader),
         },
         {
@@ -261,11 +266,13 @@ const router = createRouter({
         {
             path: '/blog',
             name: 'blog',
+            alias: ['/ru/blog'],
             component: templateView('Blog', blogViewLoader),
         },
         {
             path: '/blog/:slug',
             name: 'blog-detail',
+            alias: ['/ru/blog/:slug'],
             component: templateView('BlogDetail', () => import('../views/BlogDetail.vue')),
         },
         {
@@ -331,6 +338,12 @@ router.beforeEach(async (to, _from, next) => {
     const userAuthStore = useUserAuthStore()
     const appStore = useAppStore()
     void captureAffiliateFromRoute(to)
+
+    // /ru/ 是海外站的显式俄文入口，优先级高于 localStorage 和浏览器语言。
+    if (to.path === '/ru' || to.path.startsWith('/ru/')) {
+        await setI18nLocale('ru-RU')
+        appStore.setLocale('ru-RU')
+    }
 
     // Ensure config is loaded before checking template mode
     if (!appStore.config) {

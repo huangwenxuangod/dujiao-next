@@ -122,6 +122,9 @@ func NewUserSSRRendererWithData(chinaOrigin, overseasOrigin string, loader SSRDa
 		}
 		origin := overseasOrigin
 		locale, title := "en-US", "Gojo AI Source Station | AI Digital Store"
+		if req.URL.Path == "/ru" || strings.HasPrefix(req.URL.Path, "/ru/") {
+			locale, title = "ru-RU", "Gojo AI Source Station | AI Digital Store"
+		}
 		if strings.EqualFold(strings.Split(req.Host, ":")[0], "cn.huangwenxuangod.xyz") {
 			origin, locale, title = chinaOrigin, "zh-CN", "五条悟AI源头站 | AI 数字商品代充平台"
 		}
@@ -168,6 +171,12 @@ func firstNonEmpty(value, fallback string) string {
 }
 
 func isPublicSSRPath(p string) bool {
+	if strings.HasPrefix(p, "/ru/") {
+		p = strings.TrimPrefix(p, "/ru")
+	}
+	if p == "/ru" {
+		p = "/"
+	}
 	if p == "/" || p == "/products" || p == "/blog" || p == "/notice" || p == "/about" || p == "/terms" || p == "/privacy" {
 		return true
 	}

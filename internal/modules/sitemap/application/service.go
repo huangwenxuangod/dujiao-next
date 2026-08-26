@@ -151,6 +151,12 @@ func (s *Service) collectURLs(ctx context.Context, baseURL string) ([]domain.URL
 			Priority:        p.Priority,
 		})
 	}
+	// 海外俄文入口使用独立 /ru/ 路径，避免与英文 URL 共用 hreflang。
+	if !strings.Contains(baseURL, "cn.huangwenxuangod.xyz") {
+		for _, p := range staticPages {
+			entries = append(entries, domain.URL{Location: baseURL + "/ru" + p.Path, LastModified: now, ChangeFrequency: p.ChangeFreq, Priority: p.Priority})
+		}
+	}
 
 	// 2. 启用的分类
 	categories, err := s.catalog.ListActiveCategories()
@@ -164,6 +170,9 @@ func (s *Service) collectURLs(ctx context.Context, baseURL string) ([]domain.URL
 			ChangeFrequency: "weekly",
 			Priority:        "0.7",
 		})
+		if !strings.Contains(baseURL, "cn.huangwenxuangod.xyz") {
+			entries = append(entries, domain.URL{Location: baseURL + "/ru/categories/" + url.PathEscape(cat.Slug), LastModified: cat.CreatedAt.UTC().Format("2006-01-02"), ChangeFrequency: "weekly", Priority: "0.7"})
+		}
 	}
 
 	// 3. 上架的商品（OnlyActive 已含分类启用过滤）
@@ -178,6 +187,9 @@ func (s *Service) collectURLs(ctx context.Context, baseURL string) ([]domain.URL
 			ChangeFrequency: "daily",
 			Priority:        "0.8",
 		})
+		if !strings.Contains(baseURL, "cn.huangwenxuangod.xyz") {
+			entries = append(entries, domain.URL{Location: baseURL + "/ru/products/" + url.PathEscape(p.Slug), LastModified: p.UpdatedAt.UTC().Format("2006-01-02"), ChangeFrequency: "daily", Priority: "0.8"})
+		}
 	}
 
 	// 4. 已发布的博客 / 公告
@@ -197,6 +209,9 @@ func (s *Service) collectURLs(ctx context.Context, baseURL string) ([]domain.URL
 			ChangeFrequency: "monthly",
 			Priority:        "0.5",
 		})
+		if !strings.Contains(baseURL, "cn.huangwenxuangod.xyz") {
+			entries = append(entries, domain.URL{Location: baseURL + "/ru/blog/" + url.PathEscape(post.Slug), LastModified: lastmod.UTC().Format("2006-01-02"), ChangeFrequency: "monthly", Priority: "0.5"})
+		}
 	}
 
 	return entries, nil
