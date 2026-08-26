@@ -32,6 +32,7 @@ type Config struct {
 	Order        OrderConfig        `mapstructure:"order"`
 	Captcha      CaptchaConfig      `mapstructure:"captcha"`
 	Web          WebConfig          `mapstructure:"web"`
+	Site         SiteConfig         `mapstructure:"site"`
 	Reseller     ResellerConfig     `mapstructure:"reseller"`
 }
 
@@ -291,6 +292,14 @@ type WebConfig struct {
 	AdminPath string `mapstructure:"admin_path"`
 }
 
+// SiteConfig 是双域名主站的公开站点配置。
+type SiteConfig struct {
+	ChinaURL     string   `mapstructure:"china_url"`
+	OverseasURL  string   `mapstructure:"overseas_url"`
+	DefaultURL   string   `mapstructure:"default_url"`
+	AllowedHosts []string `mapstructure:"allowed_hosts"`
+}
+
 // ResellerConfig 分销商模式配置。
 type ResellerConfig struct {
 	Enabled              bool     `mapstructure:"enabled"`
@@ -422,6 +431,10 @@ func Load() *Config {
 	viper.SetDefault("captcha.turnstile.verify_url", "https://challenges.cloudflare.com/turnstile/v0/siteverify")
 	viper.SetDefault("captcha.turnstile.timeout_ms", 2000)
 	viper.SetDefault("web.admin_path", "/admin")
+	viper.SetDefault("site.china_url", "https://cn.huangwenxuangod.xyz")
+	viper.SetDefault("site.overseas_url", "https://huangwenxuangod.xyz")
+	viper.SetDefault("site.default_url", "https://huangwenxuangod.xyz")
+	viper.SetDefault("site.allowed_hosts", []string{"cn.huangwenxuangod.xyz", "huangwenxuangod.xyz", "www.huangwenxuangod.xyz"})
 	viper.SetDefault("reseller.enabled", false)
 	viper.SetDefault("reseller.main_hosts", []string{"localhost", "127.0.0.1", "::1"})
 	viper.SetDefault("reseller.trusted_forwarded_host", false)

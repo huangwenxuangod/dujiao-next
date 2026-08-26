@@ -46,6 +46,9 @@ RUN go mod download
 
 COPY . .
 
+# 先编译检查后端源码，避免前端构建完成后才在最终链接阶段暴露普通 Go 编译错误。
+RUN go test -run '^$' ./...
+
 # go:embed 只能读取包目录内的文件，所以前端产物必须落到 internal/web/dist/ 下
 COPY --from=frontend /src/admin/dist ./internal/web/dist/admin
 COPY --from=frontend /src/user/dist  ./internal/web/dist/user

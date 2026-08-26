@@ -86,7 +86,7 @@ func (s *Service) GenerateRobots(baseURL string) string {
 		b.WriteString("\n")
 		b.WriteString("Sitemap: ")
 		b.WriteString(baseURL)
-		b.WriteString("/sitemap.xml\n")
+		b.WriteString("/sitemap-index.xml\n")
 	}
 	return b.String()
 }
@@ -104,6 +104,25 @@ type urlSet struct {
 	XMLName xml.Name   `xml:"urlset"`
 	Xmlns   string     `xml:"xmlns,attr"`
 	URLs    []xmlEntry `xml:"url"`
+}
+
+type sitemapIndex struct {
+	XMLName  xml.Name `xml:"sitemapindex"`
+	Xmlns    string   `xml:"xmlns,attr"`
+	Sitemaps []struct {
+		Loc string `xml:"loc"`
+	} `xml:"sitemap"`
+}
+
+// GenerateIndex 保留索引入口，后续可在不改 robots 的情况下增加分片。
+func (s *Service) GenerateIndex(baseURL string) string {
+	baseURL = strings.TrimRight(strings.TrimSpace(baseURL), "/")
+	index := sitemapIndex{Xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9"}
+	index.Sitemaps = append(index.Sitemaps, struct {
+		Loc string `xml:"loc"`
+	}{Loc: baseURL + "/sitemap.xml"})
+	body, _ := xml.MarshalIndent(index, "", "  ")
+	return xml.Header + string(body) + "\n"
 }
 
 func (s *Service) collectURLs(ctx context.Context, baseURL string) ([]domain.URL, error) {

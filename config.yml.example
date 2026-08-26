@@ -189,3 +189,12 @@ web:
   # 强烈建议改成不易猜测的字符串以降低自动化扫描风险
   # 例如: "/dj-mgmt-7x9k2" 或 "/console-private"
   admin_path: "/admin"
+
+site:
+  china_url: "https://cn.huangwenxuangod.xyz"
+  overseas_url: "https://huangwenxuangod.xyz"
+  default_url: "https://huangwenxuangod.xyz"
+  allowed_hosts:
+    - cn.huangwenxuangod.xyz
+    - huangwenxuangod.xyz
+    - www.huangwenxuangod.xyz
