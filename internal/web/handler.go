@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"html"
 	"io/fs"
 	"net/http"
 	"path"
@@ -95,6 +96,58 @@ const (
 	hashedAssetCacheControl = "public, max-age=31536000, immutable"
 )
 
+// UserSSRRenderer 只负责公开页面的首屏 SEO 外壳；Vue 仍负责后续交互和数据刷新。
+type UserSSRRenderer func(*http.Request, []byte) []byte
+
+// NewUserSSRRenderer 创建无状态 SSR 渲染器。它不访问数据库，不改变 API 和 SPA 行为。
+func NewUserSSRRenderer(chinaOrigin, overseasOrigin string) UserSSRRenderer {
+	chinaOrigin = strings.TrimRight(strings.TrimSpace(chinaOrigin), "/")
+	overseasOrigin = strings.TrimRight(strings.TrimSpace(overseasOrigin), "/")
+	return func(req *http.Request, raw []byte) []byte {
+		if req == nil || !isPublicSSRPath(req.URL.Path) {
+			return raw
+		}
+		origin := overseasOrigin
+		locale, title := "en-US", "Gojo AI Source Station | AI Digital Store"
+		if strings.EqualFold(strings.Split(req.Host, ":")[0], "cn.huangwenxuangod.xyz") {
+			origin, locale, title = chinaOrigin, "zh-CN", "五条悟AI源头站 | AI 数字商品代充平台"
+		}
+		if origin == "" {
+			return raw
+		}
+		canonical := origin + req.URL.Path
+		if req.URL.RawQuery != "" {
+			canonical += "?" + req.URL.RawQuery
+		}
+		replacements := []struct{ old, new string }{
+			{"<html lang=\"zh-CN\">", `<html lang="` + locale + `">`},
+			{"<html lang=\"en\">", `<html lang="` + locale + `">`},
+			{"<title>五条悟AI源头站 | AI 数字商品代充平台</title>", "<title>" + title + "</title>"},
+		}
+		body := string(raw)
+		for _, item := range replacements {
+			body = strings.Replace(body, item.old, item.new, 1)
+		}
+		if !strings.Contains(body, `rel="canonical"`) {
+			seo := `<link rel="canonical" href="` + htmlEscape(canonical) + `">` +
+				`<link rel="alternate" hreflang="zh-CN" href="` + htmlEscape(chinaOrigin+req.URL.Path) + `">` +
+				`<link rel="alternate" hreflang="en" href="` + htmlEscape(overseasOrigin+req.URL.Path) + `">` +
+				`<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","url":"` + htmlEscape(origin) + `"}</script>`
+			body = strings.Replace(body, "</head>", seo+"</head>", 1)
+		}
+		return []byte(body)
+	}
+}
+
+func isPublicSSRPath(p string) bool {
+	if p == "/" || p == "/products" || p == "/blog" || p == "/notice" || p == "/about" || p == "/terms" || p == "/privacy" {
+		return true
+	}
+	return strings.HasPrefix(p, "/products/") || strings.HasPrefix(p, "/categories/") || strings.HasPrefix(p, "/blog/")
+}
+
+func htmlEscape(value string) string { return html.EscapeString(value) }
+
 // serveIndex 返回 SPA 入口，并禁止浏览器与中间 CDN 长期缓存。
 func serveIndex(c *gin.Context, body []byte) {
 	c.Header("Cache-Control", indexCacheControl)
@@ -161,6 +214,11 @@ func RegisterAdmin(r *gin.Engine, prefix string, fsys fs.FS) error {
 // 由于 NoRoute 在所有显式路由（API、uploads、health、admin）之后才匹配，
 // 这里不需要做路径前缀剥离；命中真实文件返回文件，否则 fallback 到 index.html。
 func RegisterUser(r *gin.Engine, fsys fs.FS) error {
+	return RegisterUserWithSSR(r, fsys, nil)
+}
+
+// RegisterUserWithSSR 注册用户 SPA，并可选注入公开页面的服务端 SEO 外壳。
+func RegisterUserWithSSR(r *gin.Engine, fsys fs.FS, renderer UserSSRRenderer) error {
 	if r == nil {
 		return errors.New("nil gin engine")
 	}
@@ -186,14 +244,22 @@ func RegisterUser(r *gin.Engine, fsys fs.FS) error {
 
 		fp := strings.TrimPrefix(c.Request.URL.Path, "/")
 		if fp == "" || fp == "index.html" {
-			serveIndex(c, indexCached)
+			body := indexCached
+			if renderer != nil {
+				body = renderer(c.Request, body)
+			}
+			serveIndex(c, body)
 			return
 		}
 		if hasFile(fsys, fp) {
 			serveAsset(c, fileServer, fp)
 			return
 		}
-		serveIndex(c, indexCached)
+		body := indexCached
+		if renderer != nil {
+			body = renderer(c.Request, body)
+		}
+		serveIndex(c, body)
 	})
 	return nil
 }

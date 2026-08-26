@@ -238,6 +238,27 @@ func TestRegisterUser_ServesIndex(t *testing.T) {
 	}
 }
 
+func TestRegisterUserWithSSRInjectsPublicSEOOnly(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	fsys := fstest.MapFS{"index.html": &fstest.MapFile{Data: []byte(`<html lang="zh-CN"><head><title>五条悟AI源头站 | AI 数字商品代充平台</title></head><body></body></html>`)}}
+	if err := RegisterUserWithSSR(r, fsys, NewUserSSRRenderer("https://cn.example", "https://example")); err != nil {
+		t.Fatalf("RegisterUserWithSSR: %v", err)
+	}
+	for _, path := range []string{"/", "/products/item"} {
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, path, nil))
+		if w.Code != http.StatusOK || !strings.Contains(w.Body.String(), `rel="canonical"`) {
+			t.Fatalf("%s did not receive SSR SEO shell: status=%d body=%s", path, w.Code, w.Body.String())
+		}
+	}
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/cart", nil))
+	if strings.Contains(w.Body.String(), `rel="canonical"`) {
+		t.Fatal("private route received SSR SEO shell")
+	}
+}
+
 func TestRegisterUser_ServesAsset(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
