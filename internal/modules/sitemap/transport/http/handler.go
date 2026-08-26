@@ -27,9 +27,10 @@ type SiteBrandReader interface {
 
 // Handler 处理 SEO 静态资源请求。
 type Handler struct {
-	sitemap Generator
-	brand   SiteBrandReader
-	sites   sitecontext.Resolver
+	sitemap   Generator
+	brand     SiteBrandReader
+	sites     sitecontext.Resolver
+	siteAware bool
 }
 
 func NewHandler(sitemap Generator, brand SiteBrandReader) *Handler {
@@ -37,7 +38,7 @@ func NewHandler(sitemap Generator, brand SiteBrandReader) *Handler {
 }
 
 func NewHandlerWithSite(sitemap Generator, brand SiteBrandReader, site config.SiteConfig) *Handler {
-	return &Handler{sitemap: sitemap, brand: brand, sites: sitecontext.NewResolver(site)}
+	return &Handler{sitemap: sitemap, brand: brand, sites: sitecontext.NewResolver(site), siteAware: true}
 }
 
 // GetSitemapIndex 提供可扩展的 sitemap 索引入口。
@@ -100,11 +101,12 @@ func (h *Handler) resolveBaseURL(c *gin.Context) string {
 	if forwardedHost := c.GetHeader("X-Forwarded-Host"); forwardedHost != "" {
 		host = forwardedHost
 	}
-	if h != nil && h.sites.Resolve(host).Origin != "" {
+	if h != nil && h.siteAware {
 		resolved := h.sites.Resolve(host)
 		if configuredHost(host, resolved) {
 			return resolved.Origin
 		}
+		return resolved.Origin
 	}
 	return scheme + "://" + host
 }
