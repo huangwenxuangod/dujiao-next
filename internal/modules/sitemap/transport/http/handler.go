@@ -3,6 +3,7 @@ package sitemaphttp
 import (
 	"context"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/dujiao-next/internal/config"
@@ -19,6 +20,9 @@ type Generator interface {
 }
 
 type SitemapIndexer interface{ GenerateIndex(baseURL string) string }
+type SitemapSharder interface {
+	GenerateShard(context.Context, string, string, int) (string, error)
+}
 
 // SiteBrandReader 提供后台配置的站点品牌 URL。
 type SiteBrandReader interface {
@@ -73,6 +77,34 @@ func (h *Handler) GetSitemap(c *gin.Context) {
 
 	c.Header("Cache-Control", "public, max-age=300")
 	c.Data(200, "application/xml; charset=utf-8", []byte(xmlStr))
+}
+
+func (h *Handler) GetSitemapShard(c *gin.Context) {
+	sharder, ok := h.sitemap.(SitemapSharder)
+	if !ok {
+		c.String(404, "sitemap shard unavailable")
+		return
+	}
+	kind, page := "static", 1
+	path := c.Request.URL.Path
+	for _, candidate := range []string{"products", "categories", "blog", "ru"} {
+		if strings.Contains(path, "sitemap-"+candidate) {
+			kind = candidate
+		}
+	}
+	if raw := c.Param("page"); raw != "" {
+		if parsed, err := strconv.Atoi(raw); err == nil && parsed > 0 {
+			page = parsed
+		}
+	}
+	body, err := sharder.GenerateShard(c.Request.Context(), h.resolveBaseURL(c), kind, page)
+	if err != nil {
+		logger.Errorw("sitemap_shard_failed", "error", err)
+		c.String(500, "internal error")
+		return
+	}
+	c.Header("Cache-Control", "public, max-age=300")
+	c.Data(200, "application/xml; charset=utf-8", []byte(body))
 }
 
 // GetRobots GET /robots.txt

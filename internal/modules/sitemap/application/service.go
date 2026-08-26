@@ -41,6 +41,52 @@ const (
 	sitemapMaxFetch    = 50000 // 单次拉取上限，避免极端数据量打爆内存
 )
 
+// GenerateShard 生成分片 sitemap。page 从 1 开始，单片最多 50,000 条。
+func (s *Service) GenerateShard(ctx context.Context, baseURL, kind string, page int) (string, error) {
+	if page < 1 {
+		page = 1
+	}
+	entries, err := s.collectURLs(ctx, strings.TrimRight(strings.TrimSpace(baseURL), "/"))
+	if err != nil {
+		return "", err
+	}
+	filtered := make([]domain.URL, 0, len(entries))
+	for _, entry := range entries {
+		path := entry.Location
+		switch kind {
+		case "products":
+			if strings.Contains(path, "/products/") {
+				filtered = append(filtered, entry)
+			}
+		case "categories":
+			if strings.Contains(path, "/categories/") {
+				filtered = append(filtered, entry)
+			}
+		case "blog":
+			if strings.Contains(path, "/blog/") {
+				filtered = append(filtered, entry)
+			}
+		case "ru":
+			if strings.Contains(path, "/ru/") {
+				filtered = append(filtered, entry)
+			}
+		default:
+			if !strings.Contains(path, "/products/") && !strings.Contains(path, "/categories/") && !strings.Contains(path, "/blog/") && !strings.Contains(path, "/ru/") {
+				filtered = append(filtered, entry)
+			}
+		}
+	}
+	start := (page - 1) * sitemapMaxFetch
+	if start >= len(filtered) {
+		return renderSitemapXML(nil)
+	}
+	end := start + sitemapMaxFetch
+	if end > len(filtered) {
+		end = len(filtered)
+	}
+	return renderSitemapXML(filtered[start:end])
+}
+
 // Generate 生成 sitemap.xml 内容；baseURL 必须是不带尾斜杠的站点根（如 https://example.com）
 func (s *Service) Generate(ctx context.Context, baseURL string) (string, error) {
 	baseURL = strings.TrimRight(strings.TrimSpace(baseURL), "/")
@@ -118,9 +164,16 @@ type sitemapIndex struct {
 func (s *Service) GenerateIndex(baseURL string) string {
 	baseURL = strings.TrimRight(strings.TrimSpace(baseURL), "/")
 	index := sitemapIndex{Xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9"}
-	index.Sitemaps = append(index.Sitemaps, struct {
-		Loc string `xml:"loc"`
-	}{Loc: baseURL + "/sitemap.xml"})
+	for _, path := range []string{"/sitemap-static.xml", "/sitemap-categories.xml", "/sitemap-products-1.xml", "/sitemap-blog.xml"} {
+		index.Sitemaps = append(index.Sitemaps, struct {
+			Loc string `xml:"loc"`
+		}{Loc: baseURL + path})
+	}
+	if !strings.Contains(baseURL, "cn.huangwenxuangod.xyz") {
+		index.Sitemaps = append(index.Sitemaps, struct {
+			Loc string `xml:"loc"`
+		}{Loc: baseURL + "/sitemap-ru.xml"})
+	}
 	body, _ := xml.MarshalIndent(index, "", "  ")
 	return xml.Header + string(body) + "\n"
 }
