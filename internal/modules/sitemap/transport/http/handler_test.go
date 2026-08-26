@@ -36,7 +36,7 @@ func (f fakeBrand) GetSiteURL() (string, error) {
 	return f.url, f.err
 }
 
-func TestGetSitemapUsesConfiguredSiteURL(t *testing.T) {
+func TestGetSitemapUsesRequestHostForMultiDomainSites(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	gen := &fakeGenerator{xml: "<urlset/>"}
 	handler := NewHandler(gen, fakeBrand{url: "https://shop.example/"})
@@ -51,8 +51,8 @@ func TestGetSitemapUsesConfiguredSiteURL(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Fatalf("status want 200 got %d", w.Code)
 	}
-	if gen.base != "https://shop.example" {
-		t.Fatalf("base URL want https://shop.example got %q", gen.base)
+	if gen.base != "http://ignored.example" {
+		t.Fatalf("base URL want http://ignored.example got %q", gen.base)
 	}
 	if !strings.Contains(w.Header().Get("Content-Type"), "application/xml") {
 		t.Fatalf("unexpected content type %q", w.Header().Get("Content-Type"))

@@ -6,11 +6,15 @@ test('explicit locale preference wins over browser and hostname', () => {
   assert.equal(detectLocale({ savedLocale: 'ru-RU', languages: ['en-US'], hostname: 'cn.huangwenxuangod.xyz' }), 'ru-RU')
 })
 
-test('browser languages map supported language families', () => {
-  assert.equal(detectLocale({ languages: ['ru-RU'], hostname: 'huangwenxuangod.xyz' }), 'ru-RU')
-  assert.equal(detectLocale({ languages: ['en-GB'], hostname: 'cn.huangwenxuangod.xyz' }), 'en-US')
-  assert.equal(detectLocale({ languages: ['zh-Hant-TW'], hostname: 'huangwenxuangod.xyz' }), 'zh-TW')
-  assert.equal(detectLocale({ languages: ['zh-SG'], hostname: 'huangwenxuangod.xyz' }), 'zh-CN')
+test('domain default wins over browser language', () => {
+  assert.equal(detectLocale({ languages: ['ru-RU'], hostname: 'huangwenxuangod.xyz' }), 'en-US')
+  assert.equal(detectLocale({ languages: ['en-GB'], hostname: 'cn.huangwenxuangod.xyz' }), 'zh-CN')
+})
+
+test('browser languages remain the fallback for unknown hosts', () => {
+  assert.equal(detectLocale({ languages: ['ru-RU'], hostname: 'localhost' }), 'ru-RU')
+  assert.equal(detectLocale({ languages: ['zh-Hant-TW'], hostname: 'localhost' }), 'zh-TW')
+  assert.equal(detectLocale({ languages: ['zh-SG'], hostname: 'localhost' }), 'zh-CN')
 })
 
 test('unsupported browser language falls back by hostname', () => {

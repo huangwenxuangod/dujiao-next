@@ -27,6 +27,11 @@ export function detectLocale(options: LocaleDetectionOptions = {}): SupportedLoc
   const saved = options.savedLocale ?? (typeof localStorage !== 'undefined' ? localStorage.getItem('locale') : null)
   if (saved && supportedLocales.includes(saved as SupportedLocale)) return saved as SupportedLocale
 
+  const hostname = options.hostname ?? (typeof window !== 'undefined' ? window.location.hostname : '')
+  const normalizedHostname = hostname.trim().toLowerCase().split(':')[0]
+  if (normalizedHostname === 'cn.huangwenxuangod.xyz') return 'zh-CN'
+  if (normalizedHostname === 'huangwenxuangod.xyz') return 'en-US'
+
   const languages = options.languages ?? (typeof navigator !== 'undefined'
     ? (navigator.languages?.length ? navigator.languages : [navigator.language])
     : [])
@@ -35,6 +40,5 @@ export function detectLocale(options: LocaleDetectionOptions = {}): SupportedLoc
     if (detected) return detected
   }
 
-  const hostname = options.hostname ?? (typeof window !== 'undefined' ? window.location.hostname : '')
   return defaultLocaleForHostname(hostname)
 }

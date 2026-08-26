@@ -62,16 +62,8 @@ func (h *Handler) GetRobots(c *gin.Context) {
 	c.Data(200, "text/plain; charset=utf-8", []byte(body))
 }
 
-// resolveBaseURL 站点 URL 优先取后台 brand.site_url，否则回落到当前请求 Host。
+// resolveBaseURL 按当前请求 Host 生成站点 URL，支持同一实例承载多个域名。
 func (h *Handler) resolveBaseURL(c *gin.Context) string {
-	if h != nil && h.brand != nil {
-		if siteURL, err := h.brand.GetSiteURL(); err == nil {
-			if u := strings.TrimRight(strings.TrimSpace(siteURL), "/"); u != "" {
-				return u
-			}
-		}
-	}
-
 	scheme := "https"
 	if c.Request.TLS == nil && c.GetHeader("X-Forwarded-Proto") == "" {
 		scheme = "http"

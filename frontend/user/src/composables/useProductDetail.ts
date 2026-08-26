@@ -5,6 +5,7 @@ import { useHead } from '@unhead/vue'
 import { useAppStore } from '../stores/app'
 import { productAPI } from '../api'
 import { getImageUrl } from '../utils/image'
+import { currentSiteOrigin, localizedSiteOrigins } from '../utils/siteOrigin'
 import { useCartStore } from '../stores/cart'
 import { useBuyNowStore } from '../stores/buyNow'
 import { useUserAuthStore } from '../stores/userAuth'
@@ -549,16 +550,24 @@ export function useProductDetail(options: { onLoaded?: () => void } = {}) {
 
   const canonicalUrl = computed(() => {
     if (!product.value?.slug) return ''
-    const fromConfig = String(appStore.config?.brand?.site_url || '').trim().replace(/\/+$/, '')
-    const base = fromConfig || window.location.origin.replace(/\/+$/, '')
-    return `${base}/products/${product.value.slug}`
+    return `${currentSiteOrigin()}/products/${product.value.slug}`
   })
 
   useHead({
     title: () => product.value ? getLocalizedText(product.value.title) : '',
     link: () => {
       if (!canonicalUrl.value) return []
-      return [{ rel: 'canonical', href: canonicalUrl.value }]
+      const links = [{ key: 'canonical', rel: 'canonical', href: canonicalUrl.value }]
+      const origins = localizedSiteOrigins()
+      if (!origins) return links
+      const path = `/products/${product.value?.slug || ''}`
+      return [
+        ...links,
+        { key: 'hreflang-zh-CN', rel: 'alternate', hreflang: 'zh-CN', href: `${origins.cn}${path}` },
+        { key: 'hreflang-en', rel: 'alternate', hreflang: 'en', href: `${origins.overseas}${path}` },
+        { key: 'hreflang-ru', rel: 'alternate', hreflang: 'ru', href: `${origins.overseas}${path}` },
+        { key: 'hreflang-x-default', rel: 'alternate', hreflang: 'x-default', href: `${origins.overseas}${path}` },
+      ]
     },
     meta: () => {
       if (!product.value) return []

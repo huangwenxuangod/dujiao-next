@@ -2,6 +2,7 @@ import { computed } from 'vue'
 import { useHead } from '@unhead/vue'
 import { useAppStore } from '../stores/app'
 import { getImageUrl } from '../utils/image'
+import { currentSiteOrigin, localizedSiteOrigins } from '../utils/siteOrigin'
 
 export interface PageSeoOptions {
   /** 页面专属标题；若与站点名相同，仅展示站点名 */
@@ -18,8 +19,6 @@ export interface PageSeoOptions {
   noindex?: () => boolean
 }
 
-const trimSlashEnd = (s: string) => s.replace(/\/+$/, '')
-
 const resolveImage = (raw: string, baseUrl: string): string => {
   const trimmed = raw.trim()
   if (!trimmed) return ''
@@ -35,10 +34,7 @@ export function usePageSeo(options: PageSeoOptions = {}) {
   const appStore = useAppStore()
 
   const baseUrl = computed(() => {
-    const fromConfig = trimSlashEnd(String(appStore.config?.brand?.site_url || '').trim())
-    if (fromConfig) return fromConfig
-    if (typeof window !== 'undefined') return trimSlashEnd(window.location.origin)
-    return ''
+    return currentSiteOrigin()
   })
 
   const siteName = computed(() => {
@@ -104,7 +100,17 @@ export function usePageSeo(options: PageSeoOptions = {}) {
     title: () => fullTitle.value,
     link: () => {
       if (!fullCanonical.value) return []
-      return [{ key: 'canonical', rel: 'canonical', href: fullCanonical.value }]
+      const links = [{ key: 'canonical', rel: 'canonical', href: fullCanonical.value }]
+      const origins = localizedSiteOrigins()
+      if (!origins) return links
+      const path = new URL(fullCanonical.value, currentSiteOrigin() || 'http://localhost').pathname
+      return [
+        ...links,
+        { key: 'hreflang-zh-CN', rel: 'alternate', hreflang: 'zh-CN', href: `${origins.cn}${path}` },
+        { key: 'hreflang-en', rel: 'alternate', hreflang: 'en', href: `${origins.overseas}${path}` },
+        { key: 'hreflang-ru', rel: 'alternate', hreflang: 'ru', href: `${origins.overseas}${path}` },
+        { key: 'hreflang-x-default', rel: 'alternate', hreflang: 'x-default', href: `${origins.overseas}${path}` },
+      ]
     },
     meta: () => {
       const tags: Array<{ name?: string; property?: string; content: string }> = []
