@@ -248,7 +248,7 @@ func TestSitemapServiceGenerateRobotsIncludesSitemapURL(t *testing.T) {
 		"User-agent: *",
 		"Disallow: /admin/",
 		"Disallow: /me/",
-		"Sitemap: https://example.com/sitemap.xml",
+		"Sitemap: https://example.com/sitemap-index.xml",
 	}
 	for _, s := range mustContain {
 		if !strings.Contains(body, s) {
