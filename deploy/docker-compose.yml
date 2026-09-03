@@ -12,11 +12,12 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: >-
-        CMD-SHELL
-        if [ -n "$$REDIS_PASSWORD" ]; then
-        redis-cli -a "$$REDIS_PASSWORD" ping | grep -q PONG;
-        else redis-cli ping | grep -q PONG; fi
+      test:
+        - CMD-SHELL
+        - >-
+          if [ -n "$$REDIS_PASSWORD" ]; then
+          redis-cli -a "$$REDIS_PASSWORD" ping | grep -q PONG;
+          else redis-cli ping | grep -q PONG; fi
       interval: 5s
       timeout: 3s
       retries: 10
