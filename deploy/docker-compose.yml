@@ -1,12 +1,45 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: dujiao-next-redis
+    restart: unless-stopped
+    command: >-
+      sh -c 'if [ -n "$$REDIS_PASSWORD" ]; then
+      exec redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD";
+      else exec redis-server --appendonly yes; fi'
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: >-
+        CMD-SHELL
+        if [ -n "$$REDIS_PASSWORD" ]; then
+        redis-cli -a "$$REDIS_PASSWORD" ping | grep -q PONG;
+        else redis-cli ping | grep -q PONG; fi
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
   app:
     image: ${IMAGE_NAME:?IMAGE_NAME is required}:${IMAGE_TAG:-latest}
     container_name: dujiao-next
     restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
     ports:
       - "127.0.0.1:${APP_PORT:-18083}:8080"
     env_file:
       - ../.env
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      QUEUE_HOST: redis
+      QUEUE_PORT: 6379
+      QUEUE_PASSWORD: ${REDIS_PASSWORD:-}
     volumes:
       - ../config.yml:/app/config.yml:ro
       - ../db:/app/db
@@ -18,3 +51,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
+
+volumes:
+  redis_data:

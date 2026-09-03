@@ -20,12 +20,18 @@ export IMAGE_NAME IMAGE_TAG
 if [[ -n "$GHCR_USERNAME" && -n "$GHCR_TOKEN" ]]; then
   printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin >/dev/null
 fi
-docker compose -f "$COMPOSE_FILE" pull app
+docker compose -f "$COMPOSE_FILE" pull app redis
 docker compose -f "$COMPOSE_FILE" up -d --remove-orphans app
 
 for attempt in $(seq 1 30); do
+  redis_state="$(docker inspect --format '{{.State.Health.Status}}' dujiao-next-redis 2>/dev/null || true)"
   state="$(docker inspect --format '{{.State.Health.Status}}' dujiao-next 2>/dev/null || true)"
-  if [[ "$state" == "healthy" ]]; then
+  if [[ "$redis_state" == "unhealthy" || "$redis_state" == "" ]]; then
+    docker compose -f "$COMPOSE_FILE" ps
+    docker compose -f "$COMPOSE_FILE" logs --tail=100 redis
+    exit 1
+  fi
+  if [[ "$redis_state" == "healthy" && "$state" == "healthy" ]]; then
     echo "dujiao-next healthy: ${IMAGE_NAME}:${IMAGE_TAG}"
     exit 0
   fi
