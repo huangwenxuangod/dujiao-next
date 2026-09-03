@@ -191,10 +191,8 @@ const { isListMode, blogEnabled, noticeEnabled, aboutEnabled, secondaryNavItems 
 
 const menuItems = computed<NavItem[]>(() => {
   const items: NavItem[] = []
-  // 列表模式下首页就是商品列表，/products 与首页同页，不再单列一项
-  if (!isListMode.value) {
-    items.push({ key: 'products', path: '/products', label: t('products.allCategories'), icon: LayoutGrid, type: 'route', target: '_self' })
-  }
+  // 即使首页采用列表模式，也保留明确的商城入口。
+  items.push({ key: 'products', path: '/products', label: t('nav.shop'), icon: LayoutGrid, type: 'route', target: '_self' })
   // 内置（博客/公告/关于）+ 后台自定义导航项
   items.push(...secondaryNavItems.value)
   return items

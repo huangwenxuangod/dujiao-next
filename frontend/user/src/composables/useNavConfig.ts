@@ -80,7 +80,7 @@ export const useNavConfig = () => {
 
     const navConfig = computed(() => appStore.config?.nav_config as NavConfigRaw | undefined)
 
-    /** 列表模式下首页即商品列表，/products 与首页同页，导航里不再单独列一项 */
+    /** 列表模式下首页即商品列表，但仍保留明确的商城入口，方便用户直达商品页。 */
     const isListMode = computed(() => appStore.config?.template_mode === 'list')
 
     const blogEnabled = computed(() => navConfig.value?.builtin?.blog !== false)
@@ -128,9 +128,7 @@ export const useNavConfig = () => {
         const items: NavItem[] = [
             { key: 'home', path: '/', label: t('nav.home'), icon: Home, type: 'route', target: '_self' },
         ]
-        if (!isListMode.value) {
-            items.push({ key: 'products', path: '/products', label: t('nav.products'), icon: LayoutGrid, type: 'route', target: '_self' })
-        }
+        items.push({ key: 'products', path: '/products', label: t('nav.shop'), icon: LayoutGrid, type: 'route', target: '_self' })
         items.push(...builtinNavItems.value, ...customNavItems.value)
         return items
     })
