@@ -125,7 +125,7 @@
           <span>© {{ year }} {{ brandName }}</span>
           <a href="https://github.com/dujiao-next" target="_blank" rel="noopener noreferrer" aria-label="Dujiao-Next on GitHub" class="inline-flex items-center gap-1.5 hover:text-primary">
             <Github class="h-[15px] w-[15px]" />
-            <span>五条悟AI源头站</span>
+            <span>{{ brandName }}</span>
           </a>
         </div>
         <span>简体中文 · 繁體 · English</span>
@@ -173,7 +173,11 @@ const moreEl = ref<HTMLElement | null>(null)
 
 const year = new Date().getFullYear()
 
-const brandName = computed(() => String(appStore.config?.brand?.site_name || '').trim() || '五条悟AI源头站')
+const brandName = computed(() => {
+  const configured = String(appStore.config?.brand?.site_name || '').trim()
+  if (appStore.isResellerTenant && configured) return configured
+  return t('common.siteName')
+})
 const brandLogo = computed(() => {
   const raw = String(appStore.config?.brand?.site_logo || '').trim()
   return raw ? getImageUrl(raw) : ''

@@ -255,7 +255,8 @@ const cartCount = computed(() => cartStore.totalItems)
 
 const brandSiteName = computed(() => {
   const text = String(appStore.config?.brand?.site_name || '').trim()
-  return text !== '' ? text : '五条悟AI源头站'
+  if (appStore.isResellerTenant && text !== '') return text
+  return t('common.siteName')
 })
 
 const brandLogo = computed(() => {
