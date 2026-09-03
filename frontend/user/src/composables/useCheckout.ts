@@ -14,6 +14,7 @@ import { refreshCartStockSnapshots, cartItemPurchaseLimit as itemPurchaseLimit, 
 import { getImageUrl } from '../utils/image'
 import { getAffiliateCode, getAffiliateVisitorKey } from '../utils/affiliate'
 import { saveGuestOrderAuth } from '../utils/guestOrderAuth'
+import { resolveCheckoutPaymentRedirect } from '../utils/paymentResumePolicy'
 import ImageCaptcha from '../components/captcha/ImageCaptcha.vue'
 import TurnstileCaptcha from '../components/captcha/TurnstileCaptcha.vue'
 import { useLocalized, useProductLabels } from './useProduct'
@@ -844,6 +845,12 @@ export function useCheckout() {
       }
 
       clearSourceStore()
+
+      const directPayURL = resolveCheckoutPaymentRedirect(responseData)
+      if (directPayURL) {
+        window.location.assign(directPayURL)
+        return
+      }
 
       // Redirect to the existing Payment page which handles all payment display
       const query = userAuthStore.isAuthenticated

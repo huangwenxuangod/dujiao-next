@@ -98,3 +98,14 @@ export const shouldAutoOpenPaymentLink = (payment?: { interaction_mode?: unknown
   const payURL = String(payment.pay_url || '').trim()
   return isRedirectPaymentInteractionMode(payment.interaction_mode) && payURL !== ''
 }
+
+export const resolveCheckoutPaymentRedirect = (payment?: {
+  order_paid?: unknown
+  interaction_mode?: unknown
+  pay_url?: unknown
+  fee_policy?: unknown
+} | null) => {
+  const payURL = String(payment?.pay_url || '').trim()
+  if (payment?.order_paid === true || !shouldAutoOpenPaymentLink(payment)) return ''
+  return payURL
+}
