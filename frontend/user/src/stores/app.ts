@@ -20,7 +20,7 @@ export const useAppStore = defineStore('app', () => {
         // /dj.svg 是历史默认值；主站应使用随前台发布的新图标。
         // 分销商仍可通过后台配置自己的 favicon。
         if (!siteIcon || (siteIcon === '/dj.svg' && !isResellerTenant.value)) {
-            return '/site-icon.jpg'
+            return '/site-icon.jpg?v=gotou-20260903'
         }
         return getImageUrl(siteIcon)
     })
