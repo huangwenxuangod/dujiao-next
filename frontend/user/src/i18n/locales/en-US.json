@@ -1,6 +1,6 @@
 {
   "common": {
-    "siteName": "Gojo AI Source Station",
+    "siteName": "Satoru Gojo AI Source Station",
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
@@ -113,7 +113,7 @@
   },
   "home": {
     "hero": {
-      "title": "Gojo AI Source Station",
+      "title": "Satoru Gojo AI Source Station",
       "subtitle": "Curated AI tools, subscriptions, and digital resources",
       "cta": "Browse Products",
       "badge": "AI Digital Resource Store"

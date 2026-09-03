@@ -484,10 +484,10 @@ const messages = {
       },
     },
     admin: {
-      brand: 'Dujiao-Next Admin',
+      brand: '五条悟AI源头站 Admin',
       layout: {
-        controlRoom: 'Dujiao-Next Admin 控制台',
-        workspace: 'Dujiao-Next Admin 后台',
+        controlRoom: '五条悟AI源头站 控制台',
+        workspace: '五条悟AI源头站 后台',
         navigation: '导航菜单',
         collapseSidebar: '收起侧边栏',
         expandSidebar: '展开侧边栏',
@@ -4927,10 +4927,10 @@ const messages = {
       },
     },
     admin: {
-      brand: 'Dujiao-Next Admin',
+      brand: '五條悟AI源頭站 Admin',
       layout: {
-        controlRoom: 'Dujiao-Next Admin 控制台',
-        workspace: 'Dujiao-Next Admin 後台',
+        controlRoom: '五條悟AI源頭站 控制台',
+        workspace: '五條悟AI源頭站 後台',
         navigation: '導航選單',
         collapseSidebar: '收起側邊欄',
         expandSidebar: '展開側邊欄',
@@ -9370,10 +9370,10 @@ const messages = {
       },
     },
     admin: {
-      brand: 'Dujiao-Next Admin',
+      brand: 'Satoru Gojo AI Source Station Admin',
       layout: {
-        controlRoom: 'Dujiao-Next Admin Control Panel',
-        workspace: 'Dujiao-Next Admin Workspace',
+        controlRoom: 'Satoru Gojo AI Source Station Control Panel',
+        workspace: 'Satoru Gojo AI Source Station Admin',
         navigation: 'Navigation',
         collapseSidebar: 'Collapse sidebar',
         expandSidebar: 'Expand sidebar',

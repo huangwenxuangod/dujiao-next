@@ -10,6 +10,9 @@ GHCR_USERNAME="${GHCR_USERNAME:-}"
 GHCR_TOKEN="${GHCR_TOKEN:-}"
 
 cd "$APP_DIR"
+if [[ -d .git ]]; then
+  git pull --ff-only origin main
+fi
 test -s .env || { echo "missing $APP_DIR/.env" >&2; exit 1; }
 test -s config.yml || { echo "missing $APP_DIR/config.yml" >&2; exit 1; }
 

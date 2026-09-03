@@ -121,12 +121,12 @@ func NewUserSSRRendererWithData(chinaOrigin, overseasOrigin string, loader SSRDa
 			return raw
 		}
 		origin := overseasOrigin
-		locale, title := "en-US", "Gojo AI Source Station | AI Digital Store"
+		locale, title := "en-US", "Satoru Gojo AI Source Station"
 		if req.URL.Path == "/ru" || strings.HasPrefix(req.URL.Path, "/ru/") {
-			locale, title = "ru-RU", "Gojo AI Source Station | AI Digital Store"
+			locale, title = "ru-RU", "Источник AI Сатору Годзё"
 		}
 		if strings.EqualFold(strings.Split(req.Host, ":")[0], "cn.huangwenxuangod.xyz") {
-			origin, locale, title = chinaOrigin, "zh-CN", "五条悟AI源头站 | AI 数字商品代充平台"
+			origin, locale, title = chinaOrigin, "zh-CN", "五条悟AI源头站"
 		}
 		if origin == "" {
 			return raw
